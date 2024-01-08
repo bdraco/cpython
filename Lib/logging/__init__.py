@@ -1363,14 +1363,9 @@ class Manager(object):
         """
         if not isinstance(name, str):
             raise TypeError('A logger name must be a string')
-<<<<<<< Updated upstream
-        with _lock:
-=======
         if (rv := self.loggerDict.get(name)) and not isinstance(rv, PlaceHolder):
             return rv
-        _acquireLock()
-        try:
->>>>>>> Stashed changes
+        with _lock:
             if name in self.loggerDict:
                 rv = self.loggerDict[name]
                 if isinstance(rv, PlaceHolder):
