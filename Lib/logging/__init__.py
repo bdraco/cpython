@@ -1361,10 +1361,16 @@ class Manager(object):
         logger and fix up the parent/child references which pointed to the
         placeholder to now point to the logger.
         """
-        rv = None
         if not isinstance(name, str):
             raise TypeError('A logger name must be a string')
+<<<<<<< Updated upstream
         with _lock:
+=======
+        if (rv := self.loggerDict.get(name)) and not isinstance(rv, PlaceHolder):
+            return rv
+        _acquireLock()
+        try:
+>>>>>>> Stashed changes
             if name in self.loggerDict:
                 rv = self.loggerDict[name]
                 if isinstance(rv, PlaceHolder):
