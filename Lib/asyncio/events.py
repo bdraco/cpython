@@ -105,13 +105,17 @@ class Handle:
         self = None  # Needed to break cycles when an exception occurs.
 
 
-class TimerHandle(Handle):
+class TimerHandle(Handle, float):
     """Object returned by timed callback registration methods."""
 
     __slots__ = ['_scheduled', '_when']
 
+    def __new__(self, when, callback, args, loop, context=None):
+        return float.__new__(self, when)
+
     def __init__(self, when, callback, args, loop, context=None):
         super().__init__(callback, args, loop, context)
+        float.__init__(when)
         if self._source_traceback:
             del self._source_traceback[-1]
         self._when = when
@@ -125,26 +129,6 @@ class TimerHandle(Handle):
 
     def __hash__(self):
         return hash(self._when)
-
-    def __lt__(self, other):
-        if isinstance(other, TimerHandle):
-            return self._when < other._when
-        return NotImplemented
-
-    def __le__(self, other):
-        if isinstance(other, TimerHandle):
-            return self._when < other._when or self.__eq__(other)
-        return NotImplemented
-
-    def __gt__(self, other):
-        if isinstance(other, TimerHandle):
-            return self._when > other._when
-        return NotImplemented
-
-    def __ge__(self, other):
-        if isinstance(other, TimerHandle):
-            return self._when > other._when or self.__eq__(other)
-        return NotImplemented
 
     def __eq__(self, other):
         if isinstance(other, TimerHandle):
