@@ -743,6 +743,8 @@ class BaseEventLoop(events.AbstractEventLoop):
         if self._debug:
             logger.debug("Close %r", self)
         self._closed = True
+        for handle in self._ready:
+            handle._cancelled = True
         self._ready.clear()
         self._scheduled.clear()
         self._executor_shutdown_called = True
