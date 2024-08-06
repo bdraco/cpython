@@ -1993,8 +1993,8 @@ class BaseEventLoop(events.AbstractEventLoop):
 
         # Handle 'later' callbacks that are ready.
         end_time = self.time() + self._clock_resolution
-        todo = self._ready
-        self._ready = []
+        todo = self._ready.copy()
+        self._ready.clear()
         while self._scheduled:
             handle = self._scheduled[0]
             if handle._when >= end_time:
