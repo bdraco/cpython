@@ -2008,10 +2008,8 @@ class BaseEventLoop(events.AbstractEventLoop):
         # callbacks scheduled by callbacks run this time around --
         # they will be run the next time (after another I/O poll).
         # Use an idiom that is thread-safe without using locks.
-        ntodo = len(todo)
         self._ready = collections.deque()
-        for i in range(ntodo):
-            handle = todo.popleft()
+        for handle in todo:
             if handle._cancelled:
                 continue
             if self._debug:
