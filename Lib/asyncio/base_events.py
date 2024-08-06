@@ -421,7 +421,7 @@ class BaseEventLoop(events.AbstractEventLoop):
         self._timer_cancelled_count = 0
         self._closed = False
         self._stopping = False
-        self._ready = collections.deque()
+        self._ready = []
         self._scheduled = []
         self._default_executor = None
         self._internal_fds = 0
@@ -2009,9 +2009,9 @@ class BaseEventLoop(events.AbstractEventLoop):
         # they will be run the next time (after another I/O poll).
         # Use an idiom that is thread-safe without using locks.
         ntodo = len(todo)
-        self._ready = collections.deque()
+        self._ready = []
         for i in range(ntodo):
-            handle = todo.popleft()
+            handle = todo.pop(0)
             if handle._cancelled:
                 continue
             if self._debug:
