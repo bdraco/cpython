@@ -46,6 +46,7 @@ class FutureTests:
         loop.set_exception_handler(exc_handler)
         self.cls(task())
         await asyncio.sleep(0)
+        await asyncio.sleep(0)
         self.assertTrue(exc_handler_called)
 
     async def test_handle_exc_handler_correct_context(self):

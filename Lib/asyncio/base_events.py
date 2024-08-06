@@ -743,8 +743,6 @@ class BaseEventLoop(events.AbstractEventLoop):
         if self._debug:
             logger.debug("Close %r", self)
         self._closed = True
-        for handle in self._ready:
-            handle._cancelled = True
         self._ready.clear()
         self._scheduled.clear()
         self._executor_shutdown_called = True
@@ -2010,10 +2008,8 @@ class BaseEventLoop(events.AbstractEventLoop):
         # callbacks scheduled by callbacks run this time around --
         # they will be run the next time (after another I/O poll).
         # Use an idiom that is thread-safe without using locks.
-        ntodo = len(todo)
         self._ready = []
-        for i in range(ntodo):
-            handle = todo[i]
+        for handle in todo:
             if handle._cancelled:
                 continue
             if self._debug:
