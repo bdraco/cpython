@@ -1993,15 +1993,13 @@ class BaseEventLoop(events.AbstractEventLoop):
 
         # Handle 'later' callbacks that are ready.
         end_time = self.time() + self._clock_resolution
-        todo = self._ready
-        self._ready = []
         while self._scheduled:
             handle = self._scheduled[0]
             if handle._when >= end_time:
                 break
             handle = heapq.heappop(self._scheduled)
             handle._scheduled = False
-            todo.append(handle)
+            self._ready.append(handle)
 
         # This is the only place where callbacks are actually *called*.
         # All other places just add them to ready.
@@ -2009,6 +2007,8 @@ class BaseEventLoop(events.AbstractEventLoop):
         # callbacks scheduled by callbacks run this time around --
         # they will be run the next time (after another I/O poll).
         # Use an idiom that is thread-safe without using locks.
+        todo = self._ready
+        self._ready = []
         ntodo = len(todo)
         for i in range(ntodo):
             handle = todo[i]
