@@ -2011,7 +2011,7 @@ class BaseEventLoop(events.AbstractEventLoop):
         ntodo = len(todo)
         self._ready = []
         for i in range(ntodo):
-            handle = todo.pop(0)
+            handle = todo[i]
             if handle._cancelled:
                 continue
             if self._debug:
