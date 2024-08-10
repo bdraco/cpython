@@ -406,7 +406,7 @@ class BaseEventLoopTests(test_utils.TestCase):
                                 self.loop, None)
 
         self.loop._process_events = mock.Mock()
-        self.loop._scheduled.append((h.when(),h))
+        self.loop._scheduled.append((h.when(), h))
         self.loop._run_once()
 
         self.assertTrue(processed)
