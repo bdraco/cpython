@@ -393,20 +393,20 @@ class _PollLikeSelector(_BaseSelectorImpl):
             # poll() has a resolution of 1 millisecond, round away from
             # zero to wait *at least* timeout seconds.
             timeout = math.ceil(timeout * 1e3)
-        ready = []
         try:
             fd_event_list = self._selector.poll(timeout)
         except InterruptedError:
-            return ready
+            return []
 
         fd_to_key_get = self._fd_to_key.get
-        for fd, event in fd_event_list:
-            key = fd_to_key_get(fd)
-            if key:
-                events = ((event & ~self._EVENT_READ and EVENT_WRITE)
-                           | (event & ~self._EVENT_WRITE and EVENT_READ))
-                ready.append((key, events & key.events))
-        return ready
+        return [
+            (key, (
+                (event & ~self._EVENT_READ and EVENT_WRITE) |
+                (event & ~self._EVENT_WRITE and EVENT_READ)
+            ) & key.events)
+            for fd, event in fd_event_list
+            if (key := fd_to_key_get(fd))
+        ]
 
 
 if hasattr(select, 'poll'):
@@ -447,20 +447,21 @@ if hasattr(select, 'epoll'):
             # FD is registered.
             max_ev = len(self._fd_to_key) or 1
 
-            ready = []
             try:
                 fd_event_list = self._selector.poll(timeout, max_ev)
             except InterruptedError:
-                return ready
+                return []
 
-            fd_to_key = self._fd_to_key
-            for fd, event in fd_event_list:
-                key = fd_to_key.get(fd)
-                if key:
-                    events = ((event & _NOT_EPOLLIN and EVENT_WRITE)
-                              | (event & _NOT_EPOLLOUT and EVENT_READ))
-                    ready.append((key, events & key.events))
-            return ready
+            fd_to_key_get = self._fd_to_key.get
+            return [
+                (key, (
+                    (event & _NOT_EPOLLIN and EVENT_WRITE) |
+                    (event & _NOT_EPOLLOUT and EVENT_READ)
+                ) & key.events)
+                for fd, event in fd_event_list
+                if (key := fd_to_key_get(fd))
+            ]
+
 
         def close(self):
             self._selector.close()
